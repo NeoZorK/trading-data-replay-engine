@@ -209,7 +209,9 @@ class MidPriceProcessor:
         try:
             async with aiofiles.open(self.mid_prices_file, "a") as f:
                 for result in self.mid_price_buffer:
-                    line = f"{result.timestamp.isoformat()}, {result.mid_price}\n"
+                    # Format: 2025-01-01 00:00:00.120, 200.5
+                    timestamp_str = result.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    line = f"{timestamp_str}, {result.mid_price}\n"
                     await f.write(line)
             
             logger.debug("Flushed mid-price buffer", 
@@ -229,7 +231,9 @@ class MidPriceProcessor:
         try:
             async with aiofiles.open(self.errors_file, "a") as f:
                 for error in self.error_buffer:
-                    line = f"{error.timestamp.isoformat()}, {error.message}\n"
+                    # Format: 2025-01-01 00:00:00.120, No mid price at ...
+                    timestamp_str = error.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    line = f"{timestamp_str}, {error.message}\n"
                     await f.write(line)
             
             logger.debug("Flushed error buffer", 
