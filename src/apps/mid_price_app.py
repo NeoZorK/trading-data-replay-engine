@@ -74,8 +74,17 @@ class MidPriceApp:
             
             logger.info("Mid-price application started successfully")
             
-            # Wait for tasks
-            await asyncio.gather(processing_task, status_task)
+            # Wait for tasks with proper cancellation handling
+            try:
+                await asyncio.gather(processing_task, status_task, return_exceptions=True)
+            except asyncio.CancelledError:
+                logger.info("Tasks cancelled, stopping application")
+                # Cancel all tasks
+                for task in [processing_task, status_task]:
+                    if not task.done():
+                        task.cancel()
+                # Wait for cancellation to complete
+                await asyncio.gather(processing_task, status_task, return_exceptions=True)
             
         except Exception as e:
             logger.error("Failed to start mid-price application", error=str(e))
@@ -85,10 +94,12 @@ class MidPriceApp:
         """Stop the mid-price application."""
         try:
             self.is_running = False
+            logger.info("Stopping mid-price application...")
             await self.processor.stop()
-            logger.info("Mid-price application stopped")
+            logger.info("Mid-price application stopped successfully")
         except Exception as e:
             logger.error("Error stopping mid-price application", error=str(e))
+            raise
     
     async def set_mode(self, mode: str) -> None:
         """

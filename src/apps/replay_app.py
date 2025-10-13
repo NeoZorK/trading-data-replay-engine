@@ -77,8 +77,17 @@ class ReplayApp:
             
             logger.info("Replay application started successfully")
             
-            # Wait for tasks
-            await asyncio.gather(replay_task, status_task, mode_task)
+            # Wait for tasks with proper cancellation handling
+            try:
+                await asyncio.gather(replay_task, status_task, mode_task, return_exceptions=True)
+            except asyncio.CancelledError:
+                logger.info("Tasks cancelled, stopping application")
+                # Cancel all tasks
+                for task in [replay_task, status_task, mode_task]:
+                    if not task.done():
+                        task.cancel()
+                # Wait for cancellation to complete
+                await asyncio.gather(replay_task, status_task, mode_task, return_exceptions=True)
             
         except Exception as e:
             logger.error("Failed to start replay application", error=str(e))
@@ -88,10 +97,12 @@ class ReplayApp:
         """Stop the replay application."""
         try:
             self.is_running = False
+            logger.info("Stopping replay application...")
             await self.replay_engine.stop()
-            logger.info("Replay application stopped")
+            logger.info("Replay application stopped successfully")
         except Exception as e:
             logger.error("Error stopping replay application", error=str(e))
+            raise
     
     async def _monitor_status(self) -> None:
         """Monitor and log application status."""

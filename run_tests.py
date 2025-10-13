@@ -40,5 +40,12 @@ def run_tests():
         return False
 
 if __name__ == "__main__":
-    success = run_tests()
-    sys.exit(0 if success else 1)
+    try:
+        success = run_tests()
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n👋 Tests stopped by user")
+        sys.exit(130)  # Standard exit code for SIGINT
+    except Exception as e:
+        print(f"❌ Test runner error: {e}")
+        sys.exit(1)

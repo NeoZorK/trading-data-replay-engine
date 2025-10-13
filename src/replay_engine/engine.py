@@ -72,6 +72,7 @@ class ReplayEngine:
         """Stop the replay engine."""
         try:
             self.is_running = False
+            logger.info("Stopping replay engine...")
             
             # Stop current engine
             if self.current_engine:
@@ -80,10 +81,11 @@ class ReplayEngine:
             # Disconnect from message queue
             await self.message_queue.disconnect()
             
-            logger.info("Replay engine stopped")
+            logger.info("Replay engine stopped successfully")
             
         except Exception as e:
             logger.error("Error stopping replay engine", error=str(e))
+            raise
     
     async def switch_mode(self, new_mode: str) -> None:
         """

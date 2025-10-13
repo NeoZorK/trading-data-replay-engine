@@ -154,4 +154,10 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n👋 Demo stopped by user")
+    except Exception as e:
+        print(f"❌ Demo error: {e}")
+        sys.exit(1)

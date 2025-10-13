@@ -76,6 +76,7 @@ class MidPriceProcessor:
         """Stop the mid-price processor."""
         try:
             self.is_running = False
+            logger.info("Stopping mid-price processor...")
             
             # Flush remaining buffers
             await self._flush_buffers()
@@ -83,12 +84,13 @@ class MidPriceProcessor:
             # Disconnect from message queue
             await self.message_queue.disconnect()
             
-            logger.info("Mid-price processor stopped", 
+            logger.info("Mid-price processor stopped successfully", 
                        processed_count=self.processed_count,
                        error_count=self.error_count)
             
         except Exception as e:
             logger.error("Error stopping mid-price processor", error=str(e))
+            raise
     
     async def set_mode(self, mode: str) -> None:
         """

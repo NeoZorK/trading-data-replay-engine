@@ -85,11 +85,12 @@ async def main():
     
     # Setup signal handlers
     def signal_handler(signum, frame):
-        logger.info("Received shutdown signal", signal=signum)
+        signal_name = signal.Signals(signum).name
+        logger.info("Received shutdown signal", signal=signal_name, signum=signum)
         asyncio.create_task(system.stop_system())
     
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)   # Ctrl+C
+    signal.signal(signal.SIGTERM, signal_handler)  # Termination
     
     try:
         await system.start_system()
