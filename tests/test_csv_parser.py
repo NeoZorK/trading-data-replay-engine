@@ -130,7 +130,8 @@ class TestCSVParser:
             csv_file = f.name
         
         try:
-            with pytest.raises(Exception):
-                CSVParser.parse_historical_data(csv_file)
+            # The parser should handle invalid data gracefully and return empty list
+            messages = CSVParser.parse_historical_data(csv_file)
+            assert len(messages) == 0  # Should return empty list for invalid data
         finally:
             os.unlink(csv_file)

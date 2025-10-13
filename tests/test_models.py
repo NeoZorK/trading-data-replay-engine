@@ -62,7 +62,7 @@ class TestTradingMessage:
         )
         
         data = message.dict()
-        assert data["timestamp"] == "2025-01-01T12:00:00"
+        assert data["timestamp"] == timestamp  # Pydantic v2 returns datetime object
         assert data["index"] == 1
         assert data["ticker"] == "BTC-USD@BINANCE"
 
