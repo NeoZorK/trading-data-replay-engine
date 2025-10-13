@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  replay-engine:
+    build: .
+    depends_on:
+      - redis
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - REDIS_URL=redis://redis:6379
+    command: python run_replay.py
+    restart: unless-stopped
+
+  mid-price-processor:
+    build: .
+    depends_on:
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - LATENCY_THRESHOLD=20.0
+    command: python run_mid_price.py
+    restart: unless-stopped
+
+volumes:
+  redis_data:

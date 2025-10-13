@@ -1,0 +1,374 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2865
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 Times-Roman;\f2\fnil\fcharset0 AppleColorEmoji;
+\f3\fswiss\fcharset0 Helvetica;\f4\froman\fcharset0 TimesNewRomanPSMT;\f5\fmodern\fcharset0 Courier;
+\f6\fmodern\fcharset0 Courier-Bold;\f7\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs48 \cf2 Python Engineer Technical Assessment\
+
+\fs24 Time limit:\
+
+\f1\b0 \'95 Implementation: 
+\f0\b 2 hours\
+
+\f1\b0 \'95 Submission (push to GitHub): 
+\f0\b 15 minutes\
+
+\fs36 Overview\
+
+\f1\b0\fs24 The goal of this exercise is to evaluate your ability to:\
+\'95 
+\f0\b Design scalable applications
+\f1\b0  that process large volumes of data.\
+\'95 Use 
+\f0\b asynchronous programming
+\f1\b0  and 
+\f0\b parallel processing
+\f1\b0  effectively.\
+\'95 Work with 
+\f0\b message brokers
+\f1\b0 , 
+\f0\b queues
+\f1\b0 , and 
+\f0\b websockets
+\f1\b0 .\
+\'95 Implement robust 
+\f0\b serialization/deserialization
+\f1\b0  and 
+\f0\b error handling
+\f1\b0 .\
+\'95 Demonstrate 
+\f0\b clean code practices
+\f1\b0 , 
+\f0\b architectural design choices
+\f1\b0 , and 
+\f0\b performance\
+awareness
+\f1\b0 .\
+
+\f2 \uc0\u9888  
+\f1 Completing both parts is highly recommended, but we value 
+\f0\b well-thought-out architecture\
+
+\f1\b0 and 
+\f0\b clean, maintainable code
+\f1\b0  over simply solving everything in a trivial way.\
+Your final solution should be presented as a 
+\f0\b GitHub repository
+\f1\b0  with a clear 
+\f0\b README.md
+\f1\b0  that\
+includes:\
+\'95 Project overview\
+\'95 Set up and run instructions\
+\'95 Any assumptions or limitations\
+\'95 requirements.txt file\
+We assume the end user has 
+\f0\b Python 3.12
+\f1\b0  installed.
+\f3 \cf0 \page 
+\f0\b\fs36 \cf2 Part 1 \'96 Historical & Live Data Replay Engine\
+
+\f1\b0\fs24 You need to implement a 
+\f0\b data replay engine
+\f1\b0  that can seamlessly replay both 
+\f0\b historical
+\f1\b0  and 
+\f0\b live\
+
+\f1\b0 data streams using a 
+\f0\b unified abstraction layer
+\f1\b0 .\
+
+\f0\b\fs28 Requirements\
+
+\f1\b0\fs24 1. 
+\f0\b Replay Abstraction\
+
+\f4\b0 \uc0\u9702  
+\f1 Both historical and live data should share the same replay interface.\
+
+\f4 \uc0\u9702  
+\f1 Assume 
+\f0\b live data
+\f1\b0  is delivered asynchronously via 
+\f0\b websocket
+\f1\b0  in 
+\f0\b JSON format
+\f1\b0 .\
+
+\f4 \uc0\u9702  
+\f1 Historical replay should use the same interface,.\
+2. 
+\f0\b Message Queue\
+
+\f4\b0 \uc0\u9702  
+\f1 All data points must be pushed into a 
+\f0\b queue
+\f1\b0 .\
+
+\f4 \uc0\u9702  
+\f1 The queue must:\
+
+\f4 \uc0\u9642  
+\f1 Support 
+\f0\b thousands of messages per second
+\f1\b0 .\
+
+\f4 \uc0\u9642  
+\f1 Allow 
+\f0\b multiple external consumers/processes
+\f1\b0  to read from it (used in Part\
+2).\
+
+\f4 \uc0\u9642  
+\f1 Handle 
+\f0\b backpressure
+\f1\b0  gracefully (avoid uncontrolled memory growth).\
+
+\f4 \uc0\u9702  
+\f1 The choice of queue is up to you (e.g., Redis, Kafka, RabbitMQ,\
+multiprocessing.Queue, etc.), but justify your decision.\
+3. 
+\f0\b Historical Replay Logic\
+
+\f4\b0 \uc0\u9702  
+\f1 You are provided with 
+\f5\fs26 historical_sample.csv
+\f1\fs24  and\
+
+\f5\fs26 live_sample.csv
+\f1\fs24 .\
+
+\f4 \uc0\u9702  
+\f1 The 
+\f0\b historical data
+\f1\b0  contains a 
+\f5\fs26 latency
+\f1\fs24  column. Your replay must respect both\
+the 
+\f0\b timestamp
+\f1\b0  and the 
+\f0\b latency
+\f1\b0 .\
+
+\f4 \uc0\u9702  
+\f1 Example (replay order must respect effective arrival time = 
+\f5\fs26 timestamp +\
+latency
+\f1\fs24 ):\
+
+\f5\fs26 Timestamp: 2025-01-01 00:00:00, latency: 120ms [1]\
+
+\f4 \uc0\u9702  
+\f5 Timestamp: 2025-01-01 00:00:00.200, latency: 1ms [2]\
+
+\f4 \uc0\u9702  
+\f5 Timestamp: 2025-01-01 00:00:00.700, latency: 10ms\
+[3]\
+Queue order should be: 
+\f6\b [2, 3, 1]
+\f3\b0\fs24 \cf0 \page 
+\f1 \cf2 4. 
+\f0\b Mode Switching\
+
+\f4\b0 \uc0\u9702  
+\f1 The engine must support switching between 
+\f0\b historical
+\f1\b0  and 
+\f0\b live
+\f1\b0  replay.\
+
+\f4 \uc0\u9702  
+\f1 Switching should be 
+\f0\b dynamic
+\f1\b0 , e.g., via an API call, CLI input, or message command\
+(your choice).\
+
+\f4 \uc0\u9702  
+\f1 On receiving 
+\f5\fs26 mode = historical
+\f1\fs24 , replay historical data.\
+
+\f4 \uc0\u9702  
+\f1 On receiving 
+\f5\fs26 mode = live
+\f1\fs24 , switch to live replay.\
+5. 
+\f0\b Bonus (state persistence)\
+
+\f4\b0 \uc0\u9702  
+\f1 If the app switches from 
+\f5\fs26 historical 
+\f7 \uc0\u8594 
+\f5  live 
+\f7 \uc0\u8594 
+\f5  historical
+\f1\fs24 , it should\
+
+\f0\b resume historical replay from the last processed point
+\f1\b0  rather than restarting.\
+6. 
+\f0\b General Requirements\
+
+\f4\b0 \uc0\u9702  
+\f1 Add structured 
+\f0\b logging
+\f1\b0  (with timestamps, severity levels, and clear messages).\
+
+\f4 \uc0\u9702  
+\f1 Handle errors gracefully (e.g., invalid input, queue overload, network interruptions).\
+
+\f4 \uc0\u9702  
+\f1 Code should be modular, readable, and testable.\
+
+\f0\b\fs36 Part 2 \'96 Mid-Price Processor\
+
+\f1\b0\fs24 Create a 
+\f0\b separate application
+\f1\b0  that consumes data from the queue (produced in Part 1) and\
+computes 
+\f0\b mid prices
+\f1\b0 .\
+
+\f0\b\fs28 Requirements\
+
+\f1\b0\fs24 1. 
+\f0\b Mid-Price Calculation\
+
+\f4\b0 \uc0\u9702  
+\f1 Formula:\
+
+\f5\fs26 mid_price = 0.5 * (bid_price + ask_price)\
+
+\f4\fs24 \uc0\u9702  
+\f1 Results must be written to a file 
+\f5\fs26 mid_prices.log
+\f1\fs24  in the format:\
+
+\f5\fs26 Timestamp, mid_price\
+
+\f4\fs24 \uc0\u9702  
+\f1 2025-01-01 00:00:00.120, 200.5
+\f3 \cf0 \page 
+\f1 \cf2 2. 
+\f0\b Latency Filtering\
+
+\f4\b0 \uc0\u9702  
+\f1 If (and only if replay mode = historical) the message\'92s latency is greater than a\
+configurable 
+\f5\fs26 LATENCY_THRESHOLD
+\f1\fs24  (e.g., 20ms):\
+
+\f4 \uc0\u9642  
+\f1 Skip mid-price calculation.\
+
+\f4 \uc0\u9642  
+\f1 Instead, log an error line to 
+\f5\fs26 errors.log
+\f1\fs24  in the format:\
+
+\f5\fs26 No mid price at <timestamp> as latency\
+<latency>ms is bigger than\
+<LATENCY_THRESHOLD>ms\
+
+\f1\fs24 3. 
+\f0\b Performance\
+
+\f4\b0 \uc0\u9702  
+\f1 The system should be designed to process a 
+\f0\b high throughput
+\f1\b0  of messages per\
+second.\
+
+\f4 \uc0\u9702  
+\f1 Minimize blocking operations, consider batching, buffering, or async writes.\
+
+\f4 \uc0\u9702  
+\f1 Properly handle concurrent consumers.\
+4. 
+\f0\b General Requirements\
+
+\f4\b0 \uc0\u9702  
+\f1 Include robust logging and error handling.\
+
+\f4 \uc0\u9702  
+\f1 Code should be clean, modular, and extensible.\
+
+\f0\b\fs36 Evaluation Criteria\
+
+\f1\b0\fs24 We will evaluate your submission based on:\
+1. 
+\f0\b Architecture & Design\
+
+\f4\b0 \uc0\u9702  
+\f1 Abstractions, modularity, scalability\
+
+\f4 \uc0\u9702  
+\f1 Correct use of async/parallelism\
+2. 
+\f0\b Correctness\
+
+\f4\b0 \uc0\u9702  
+\f1 Replay order correctness (timestamp + latency)\
+
+\f4 \uc0\u9702  
+\f1 Accurate mid-price computation\
+
+\f4 \uc0\u9702  
+\f1 Proper handling of latency threshold
+\f3 \cf0 \page 
+\f1 \cf2 3. 
+\f0\b Performance\
+
+\f4\b0 \uc0\u9702  
+\f1 Ability to handle thousands of messages per second\
+
+\f4 \uc0\u9702  
+\f1 Efficient queue choice and consumer handling\
+4. 
+\f0\b Robustness\
+
+\f4\b0 \uc0\u9702  
+\f1 Logging, error handling, resilience to backpressure\
+5. 
+\f0\b Code Quality\
+
+\f4\b0 \uc0\u9702  
+\f1 Readability, structure, comments, typing hints (if used)\
+
+\f4 \uc0\u9702  
+\f1 Clear documentation in README\
+
+\f0\b\fs36 Submission\
+
+\f1\b0\fs24 \'95 Submit your solution as a 
+\f0\b GitHub repository
+\f1\b0 .\
+\'95 The repository must contain:\
+
+\f4\fs26 \uc0\u9702  
+\f5 README.md
+\f1\fs24  with:\
+
+\f4 \uc0\u9642  
+\f1 Overview of design\
+
+\f4 \uc0\u9642  
+\f1 Setup & run instructions\
+
+\f4 \uc0\u9642  
+\f1 Any additional notes\
+
+\f4 \uc0\u9702  
+\f1 Codebase for Part 1 and Part 2\
+
+\f4 \uc0\u9702  
+\f1 Sample output logs (
+\f5\fs26 mid_prices.log
+\f1\fs24 , 
+\f5\fs26 errors.log
+\f1\fs24 )}
