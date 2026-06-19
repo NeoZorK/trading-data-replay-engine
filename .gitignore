@@ -173,3 +173,4 @@ data/*.csv
 temp/
 tmp/
 *.tmp
+.DS_Store
