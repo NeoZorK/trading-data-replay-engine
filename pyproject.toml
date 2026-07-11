@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trading-data-replay-engine"
-version = "1.0.0"
+version = "1.0.1"
 description = "High-performance trading data replay engine with mid-price processing"
 authors = [{name = "Python Engineer", email = "engineer@example.com"}]
 license = {text = "MIT"}

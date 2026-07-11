@@ -46,7 +46,8 @@ class MessageQueue:
     async def connect(self) -> None:
         """Connect to Redis."""
         try:
-            self.redis_client = redis.from_url(self.redis_url)
+            # The consumer parses field names as strings, so decode Redis bytes at the boundary.
+            self.redis_client = redis.from_url(self.redis_url, decode_responses=True)
             await self.redis_client.ping()
             
             # Create consumer group if it doesn't exist
@@ -72,7 +73,7 @@ class MessageQueue:
     async def disconnect(self) -> None:
         """Disconnect from Redis."""
         if self.redis_client:
-            await self.redis_client.close()
+            await self.redis_client.aclose()
             logger.info("Disconnected from Redis")
     
     async def publish(self, message: TradingMessage) -> None:
@@ -87,7 +88,7 @@ class MessageQueue:
         
         try:
             # Convert message to dict for Redis
-            message_data = message.dict()
+            message_data = message.model_dump()
             message_data["timestamp"] = message.timestamp.isoformat()
             
             # Add to stream with max length for backpressure
