@@ -1,6 +1,18 @@
 # Trading Data Replay Engine
 
-A high-performance Python application for replaying historical and live trading data with mid-price calculation capabilities.
+> **ARCHIVED — no longer maintained (2026-09-30).** This was a two-hour engineering exercise. The one idea worth keeping —
+> replay quotes in the order they **arrived** (`timestamp + latency`), not the order the exchange stamped them — is being
+> carried over to [Monte-Neo](https://github.com/NeoZorK/Monte-Neo) as arrival-time checks for strategy verification.
+
+## Status: what works and what does not
+
+| Works | Does not / limits |
+|---|---|
+| Historical replay ordered by `timestamp + latency` (`src/replay_engine/historical.py`) | "Live" mode reads a CSV with a 1 ms pause; the WebSocket server and client (`start_websocket_server`, `connect_to_websocket`) are written but nothing calls them |
+| Redis Streams queue, mid-price processor with latency filter | Mode switching runs on a demo timer (every 60 s); there is no API or CLI to switch |
+| CSV parsing and unit tests for models, parser and processor | Resume position is kept in memory only; the whole CSV is loaded into Python objects |
+
+The sample data files were removed from the current tree; they are not part of this project's license.
 
 ## Overview
 
@@ -91,9 +103,8 @@ This project implements a scalable trading data replay engine that can process l
 
 4. **Prepare data files**:
    ```bash
-   # Ensure your CSV files are in the data/ directory
-   ls data/
-   # Should show: historical_data.csv, live_data.csv
+   # Put your own historical_data.csv and live_data.csv in the data/ directory
+   # (columns: index, timestamp, ticker, ask_amount, ask_price, bid_price, bid_amount[, latency])
    ```
 
 ## Usage
